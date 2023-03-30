@@ -30,6 +30,10 @@ to enter the command again.
 The server.java file is used to initialize the server. The port can be provided through the terminal. The server accepts command
 in the format "ftpclient 5016". Any other command will be termed invalid and the system will be terminated.
 
+Working details - 
+
+Every time a new client connects to the server, a new thread will be spawned by the server. All requests by the client will be taken care by the thread allocated to the client.
+
 
 ![img.png](img.png)
 

@@ -2,12 +2,12 @@ import java.io.*;
 import java.net.*;
 import java.io.FileOutputStream;
 
-public class Server {
+public class Server extends Thread{
 
 
     private static int socketNo;
 
-    private ServerSocket sSocket;
+    private static ServerSocket sSocket;
     private Socket connection = null;
 
     private DataOutputStream dataOutputStream;
@@ -16,33 +16,42 @@ public class Server {
 
     private String message;
 
-    Server(int socketNo){
-        this.socketNo = socketNo;
+    private int connectionNo;
+
+    Server(Socket connection, int connectionNo){
+        this.connection = connection;
+        this.connectionNo = connectionNo;
+
     }
 
 
-    private void run(){
-        System.out.println("Server has been started");
-        try{
-            sSocket = new ServerSocket(socketNo);
-            connection = sSocket.accept();
-            while(true){
-                System.out.println("Running While Loop");
+    public void run(){
+
+        System.out.println("Current Client connection count:  " + connectionNo);
+        while(true) {
+            try {
                 dataOutputStream = new DataOutputStream(connection.getOutputStream());
                 dataInputStream = new DataInputStream(connection.getInputStream());
 
                 String requestType = dataInputStream.readUTF();
                 System.out.println("Arrived Here " + requestType);
 
-                if(requestType.equals("POST")){
-                    receiveFile("/Users/akhil/computer_networks/newuploadTestFile.pptx");
-                }else{
+                if (requestType.equals("POST")) {
+
+                    String file = dataInputStream.readUTF();
+                    String fileName = "new" + file;
+                    receiveFile("/Users/akhil/computer_networks/" + fileName);
+                } else {
+
+                    System.out.println("Request Type is Get");
+
                     fetchFile();
                 }
-            }
 
-        }catch(Exception ex){
-            System.out.println("Exception Occurred => " + ex.getMessage());
+
+            } catch (Exception ex) {
+                System.out.println("Exception Occurred => " + ex.getMessage());
+            }
         }
 
     }
@@ -60,11 +69,15 @@ public class Server {
             int bytes = 0;
 
             byte[] buff = new byte[1000];
+            int totalBytes = 0;
             while ((bytes = fileInputStream.read(buff))
                     != -1) {
+                totalBytes += bytes;
+
                 dataOutputStream.write(buff, 0, bytes);
                 dataOutputStream.flush();
             }
+            System.out.println("Total Bytes transferred are: " + totalBytes);
             fileInputStream.close();
         }catch(Exception ex){
             System.out.println("Exception is: " + ex.getMessage());
@@ -110,10 +123,18 @@ public class Server {
                System.exit(1);
            }
            int clientPort = Integer.parseInt(tokens[1]);
-           Server s = new Server(clientPort);
-           s.run();
+           int connectionNo = 0;
+           System.out.println("Client Port: " + clientPort);
+           sSocket = new ServerSocket(clientPort);
+           while(true){
+               System.out.println("Running While Loop");
+               new Server(sSocket.accept(), connectionNo++).start();
+               System.out.println("Here");
+           }
+
        }catch (Exception ex){
            System.out.println("Exception Occurred: " + ex.getMessage());
+
        }
 
 

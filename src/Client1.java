@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.Socket;
 
 
-public class Client {
+public class Client1 {
 
     private static int socketNo;
     private static final String LOCALHOST = "localhost";
@@ -23,7 +23,7 @@ public class Client {
 
 
 
-    Client(){
+    Client1(){
 
     }
 
@@ -46,7 +46,7 @@ public class Client {
                 dataOutputStream.flush();
             }
 
-            fileInputStream.close();
+           // fileInputStream.close();
 
         }catch(Exception ex){
             System.out.println("Exception occurred in upload file. Exception Message is: " + ex.getMessage());
@@ -63,7 +63,8 @@ public class Client {
             dataOutputStream.flush();
             dataOutputStream.writeUTF(fileName);
             dataOutputStream.flush();
-            String file = "new" + fileName;
+
+            String file = fileName;
             String outputPath = "/Users/akhil/computer_networks/new" + file;
             int bytes = 0;
             FileOutputStream fileOutputStream
@@ -104,6 +105,7 @@ public class Client {
                 System.out.println("Entered Input is : " + tokens[0]);
                 dataInputStream = new DataInputStream(rs.getInputStream());
                 dataOutputStream = new DataOutputStream(rs.getOutputStream());
+
                 if(tokens[0].equals(UPLOAD_FILE_MESSAGE)){
 
                     uploadFile(tokens[1]);
